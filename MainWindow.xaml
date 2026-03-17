@@ -1,12 +1,203 @@
-﻿<Window x:Class="Szamologep.MainWindow"
+<Window x:Class="Szamologep.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Szamologep"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Számológép" Height="780" Width="420"
+        ResizeMode="CanMinimize"
+        Background="#1a1a1a"
+        KeyDown="Window_KeyDown"
+        FontFamily="Segoe UI">
+    <Window.Resources>
+        <Style x:Key="DisplayStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#00e676"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
 
+        <Style x:Key="BtnBase" TargetType="Button">
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BtnNum" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+            <Setter Property="Background" Value="#2e2e2e"/>
+            <Setter Property="Foreground" Value="#ffffff"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
+        <Style x:Key="BtnOp" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+            <Setter Property="Background" Value="#374151"/>
+            <Setter Property="Foreground" Value="#93c5fd"/>
+        </Style>
+
+        <Style x:Key="BtnFn" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+            <Setter Property="Background" Value="#1e3a5f"/>
+            <Setter Property="Foreground" Value="#7dd3fc"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+
+        <Style x:Key="BtnShift" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+            <Setter Property="Background" Value="#78350f"/>
+            <Setter Property="Foreground" Value="#fcd34d"/>
+        </Style>
+
+        <Style x:Key="BtnEq" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+            <Setter Property="Background" Value="#065f46"/>
+            <Setter Property="Foreground" Value="#6ee7b7"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style x:Key="BtnClear" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+            <Setter Property="Background" Value="#7f1d1d"/>
+            <Setter Property="Foreground" Value="#fca5a5"/>
+        </Style>
+
+        <Style x:Key="BtnMem" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+            <Setter Property="Background" Value="#312e81"/>
+            <Setter Property="Foreground" Value="#c4b5fd"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+
+        <Style x:Key="BtnBase2" TargetType="Button" BasedOn="{StaticResource BtnBase}">
+            <Setter Property="Background" Value="#1c1c3a"/>
+            <Setter Property="Foreground" Value="#a5b4fc"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#0d1117" CornerRadius="10" Padding="12,8" Margin="0,0,0,8">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="tbExpression" Grid.Column="0" Style="{StaticResource DisplayStyle}" FontSize="12" Foreground="#4a9a6a" MinHeight="18" Text=""/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock x:Name="tbAngleMode" Foreground="#f59e0b" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center" Margin="4,0" Text="DEG"/>
+                        <TextBlock x:Name="tbMemIndicator" Foreground="#a78bfa" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center" Margin="4,0" Text="" />
+                        <TextBlock x:Name="tbShiftIndicator" Foreground="#fcd34d" FontSize="10" FontFamily="Consolas" VerticalAlignment="Center" Margin="4,0" Text=""/>
+                    </StackPanel>
+                </Grid>
+                <TextBlock x:Name="tbDisplay" Style="{StaticResource DisplayStyle}" FontSize="28" MinHeight="40" Text="0"/>
+                <TextBlock x:Name="tbBaseStatus" Foreground="#6b7280" FontSize="10" FontFamily="Consolas" TextAlignment="Right" Text=""/>
+            </StackPanel>
+        </Border>
+
+        <UniformGrid Grid.Row="1" Columns="5" Margin="0,0,0,4">
+            <Button x:Name="btnShift" Content="SHIFT" Style="{StaticResource BtnShift}" Click="BtnShift_Click"/>
+            <Button Content="DEG/RAD" Style="{StaticResource BtnFn}" Click="BtnDegRad_Click"/>
+            <Button Content="S⟺D" Style="{StaticResource BtnFn}" Click="BtnSD_Click"/>
+            <Button Content="BASE" Style="{StaticResource BtnBase2}" Click="BtnBase_Click"/>
+            <Button Content="AC" Style="{StaticResource BtnClear}" Click="BtnAC_Click"/>
+        </UniformGrid>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <UniformGrid Grid.Row="0" Columns="5">
+                <Button x:Name="btnSin" Content="sin" Style="{StaticResource BtnFn}" Click="BtnTrig_Click" Tag="sin"/>
+                <Button x:Name="btnCos" Content="cos" Style="{StaticResource BtnFn}" Click="BtnTrig_Click" Tag="cos"/>
+                <Button x:Name="btnTan" Content="tan" Style="{StaticResource BtnFn}" Click="BtnTrig_Click" Tag="tan"/>
+                <Button Content="π" Style="{StaticResource BtnFn}" Click="BtnPi_Click"/>
+                <Button Content="e" Style="{StaticResource BtnFn}" Click="BtnE_Click"/>
+            </UniformGrid>
+
+            <UniformGrid Grid.Row="1" Columns="5">
+                <Button x:Name="btnLog" Content="log" Style="{StaticResource BtnFn}" Click="BtnLog_Click"/>
+                <Button x:Name="btnLn" Content="ln" Style="{StaticResource BtnFn}" Click="BtnLn_Click"/>
+                <Button x:Name="btnSqrt" Content="ⁿ√x" Style="{StaticResource BtnFn}" Click="BtnSqrt_Click"/>
+                <Button x:Name="btnPow" Content="xʸ" Style="{StaticResource BtnFn}" Click="BtnPow_Click"/>
+                <Button x:Name="btnSq" Content="x²" Style="{StaticResource BtnFn}" Click="BtnSq_Click"/>
+            </UniformGrid>
+
+            <UniformGrid Grid.Row="2" Columns="5">
+                <Button Content="MC" Style="{StaticResource BtnMem}" Click="BtnMC_Click"/>
+                <Button Content="MR" Style="{StaticResource BtnMem}" Click="BtnMR_Click"/>
+                <Button Content="M+" Style="{StaticResource BtnMem}" Click="BtnMPlus_Click"/>
+                <Button Content="M-" Style="{StaticResource BtnMem}" Click="BtnMMinus_Click"/>
+                <Button Content="MS" Style="{StaticResource BtnMem}" Click="BtnMS_Click"/>
+            </UniformGrid>
+
+            <UniformGrid Grid.Row="3" Columns="5">
+                <Button Content="(" Style="{StaticResource BtnOp}" Click="BtnParen_Click" Tag="("/>
+                <Button Content=")" Style="{StaticResource BtnOp}" Click="BtnParen_Click" Tag=")"/>
+                <Button Content="1/x" Style="{StaticResource BtnFn}" Click="BtnRecip_Click"/>
+                <Button Content="|x|" Style="{StaticResource BtnFn}" Click="BtnAbs_Click"/>
+                <Button Content="DEL" Style="{StaticResource BtnClear}" Click="BtnDel_Click"/>
+            </UniformGrid>
+
+            <UniformGrid Grid.Row="4" Columns="4">
+                <Button Content="7" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="7"/>
+                <Button Content="8" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="8"/>
+                <Button Content="9" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="9"/>
+                <Button Content="÷" Style="{StaticResource BtnOp}" Click="BtnOp_Click" Tag="/"/>
+            </UniformGrid>
+
+            <UniformGrid Grid.Row="5" Columns="4">
+                <Button Content="4" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="4"/>
+                <Button Content="5" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="5"/>
+                <Button Content="6" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="6"/>
+                <Button Content="×" Style="{StaticResource BtnOp}" Click="BtnOp_Click" Tag="*"/>
+            </UniformGrid>
+
+            <UniformGrid Grid.Row="6" Columns="4">
+                <Button Content="1" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="1"/>
+                <Button Content="2" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="2"/>
+                <Button Content="3" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="3"/>
+                <Button Content="−" Style="{StaticResource BtnOp}" Click="BtnOp_Click" Tag="-"/>
+            </UniformGrid>
+
+            <Grid Grid.Row="7">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="0" Style="{StaticResource BtnNum}" Click="BtnNum_Click" Tag="0"/>
+                <Button Grid.Column="1" Content="." Style="{StaticResource BtnNum}" Click="BtnDot_Click"/>
+                <Button Grid.Column="2" Content="+" Style="{StaticResource BtnOp}" Click="BtnOp_Click" Tag="+"/>
+                <Button Grid.Column="3" Content="=" Style="{StaticResource BtnEq}" Click="BtnEquals_Click"/>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>
