@@ -65,11 +65,11 @@ namespace Szamologep
         {
             return _inputMode switch
             {
-                InputMode.RootDegree => "Add meg a gyok fokszamat, majd \u221a",
+                InputMode.RootDegree => "Add meg a gyok fokszamat, majd nyomj egy operatort",
                 InputMode.RootArg => "Add meg a gyokjel alatti szamot",
                 InputMode.PowerBase => "Add meg az alapot",
                 InputMode.PowerExp => "Add meg a kitevot",
-                InputMode.LogBase => "Add meg a logaritmus alapjat, majd log",
+                InputMode.LogBase => "Add meg a logaritmus alapjat, majd nyomj egy operatort",
                 InputMode.LogArg => "Add meg a logaritmusalus szamot",
                 _ => ""
             };
@@ -163,10 +163,44 @@ namespace Szamologep
             }
         }
 
+        private void AdvancePendingMode()
+        {
+            if (_inputMode == InputMode.RootDegree)
+            {
+                _pendingBuffer = "";
+                _inputMode = InputMode.RootArg;
+                RefreshUI();
+            }
+            else if (_inputMode == InputMode.LogBase)
+            {
+                _pendingBuffer = "";
+                _inputMode = InputMode.LogArg;
+                RefreshUI();
+            }
+            else if (_inputMode == InputMode.PowerBase)
+            {
+                _pendingBuffer = "";
+                _inputMode = InputMode.PowerExp;
+                RefreshUI();
+            }
+        }
+
         private void AppendOp(string op)
         {
             if (_baseState != BaseInputState.Idle) return;
-            if (_inputMode != InputMode.Normal) return;
+
+            if (_inputMode == InputMode.RootDegree || _inputMode == InputMode.LogBase || _inputMode == InputMode.PowerBase)
+            {
+                AdvancePendingMode();
+                return;
+            }
+            if (_inputMode == InputMode.RootArg || _inputMode == InputMode.LogArg || _inputMode == InputMode.PowerExp)
+            {
+                _inputMode = InputMode.Normal;
+                _pendingToken = null;
+                _pendingBuffer = "";
+            }
+
             _justCalculated = false;
             string display = op switch { "+" => "+", "-" => "\u2212", "*" => "\u00d7", "/" => "\u00f7", _ => op };
             _tokens.Add(new MathToken { Type = TokenType.Op, Value = display });
@@ -176,7 +210,10 @@ namespace Szamologep
 
         private void AppendParen(string p)
         {
-            if (_inputMode != InputMode.Normal) return;
+            if (_inputMode == InputMode.RootDegree || _inputMode == InputMode.LogBase)
+            { AdvancePendingMode(); return; }
+            if (_inputMode == InputMode.RootArg || _inputMode == InputMode.LogArg || _inputMode == InputMode.PowerExp)
+            { _inputMode = InputMode.Normal; _pendingToken = null; _pendingBuffer = ""; }
             _tokens.Add(new MathToken { Type = TokenType.Paren, Value = p });
             Rerender();
             RefreshUI();
@@ -822,16 +859,15 @@ namespace Szamologep
             if (shift && e.Key == Key.D9) { AppendParen(")"); e.Handled = true; return; }
             if (shift && e.Key == Key.D6) { StartPower(""); e.Handled = true; return; }
             if (shift && e.Key == Key.OemPlus) { AppendOp("+"); e.Handled = true; return; }
-            if (shift && e.Key == Key.D5) { AppendOp("%"); e.Handled = true; return; }
 
             if (e.Key == Key.Add) { AppendOp("+"); e.Handled = true; return; }
             if (e.Key == Key.Subtract || (!shift && e.Key == Key.OemMinus)) { AppendOp("-"); e.Handled = true; return; }
             if (e.Key == Key.Multiply) { AppendOp("*"); e.Handled = true; return; }
             if (e.Key == Key.Divide) { AppendOp("/"); e.Handled = true; return; }
-            if (e.Key == Key.OemQuestion && !shift) { AppendOp("/"); e.Handled = true; return; }
+            if (!shift && e.Key == Key.OemQuestion) { AppendOp("/"); e.Handled = true; return; }
             if (e.Key == Key.Decimal || e.Key == Key.OemPeriod || e.Key == Key.OemComma)
             { AppendDot(); e.Handled = true; return; }
-            if (e.Key == Key.Enter || e.key == Key.Return) { Calculate(); e.Handled = true; return; }
+            if (e.Key == Key.Enter || e.Key == Key.Return) { Calculate(); e.Handled = true; return; }
             if (e.Key == Key.Back) { DeleteLast(); e.Handled = true; return; }
             if (e.Key == Key.Escape || e.Key == Key.Delete) { ClearAll(); e.Handled = true; return; }
             if (!shift && e.Key == Key.E) { BtnEuler_Click(sender, e); e.Handled = true; return; }
