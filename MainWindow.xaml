@@ -1,13 +1,13 @@
 <Window x:Class="Szamologep.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Scientific Calculator" Height="860" Width="440"
+        xmlns:local="clr-namespace:Szamologep"
+        Title="Scientific Calculator" Height="900" Width="460"
         ResizeMode="CanMinimize"
         Background="#111111"
         KeyDown="Window_KeyDown"
         FontFamily="Segoe UI">
     <Window.Resources>
-
         <Style x:Key="BtnBase" TargetType="Button">
             <Setter Property="Margin" Value="2.5"/>
             <Setter Property="FontSize" Value="12"/>
@@ -34,7 +34,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
         <Style x:Key="BtnNum" TargetType="Button" BasedOn="{StaticResource BtnBase}">
             <Setter Property="Background" Value="#2a2a2a"/>
             <Setter Property="Foreground" Value="#f0f0f0"/>
@@ -81,7 +80,6 @@
             <Setter Property="Foreground" Value="#9ca3af"/>
             <Setter Property="FontSize" Value="11"/>
         </Style>
-
     </Window.Resources>
 
     <Grid Margin="10">
@@ -100,15 +98,15 @@
 
         <Border Grid.Row="0" Background="#0a0f0a" CornerRadius="10" Padding="14,10" Margin="0,0,0,6">
             <StackPanel>
-                <Grid Margin="0,0,0,2">
+                <Grid Margin="0,0,0,4">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="ExpressionBlock"
                                Grid.Column="0"
-                               Foreground="#3d7a52" FontFamily="Consolas" FontSize="12"
-                               TextAlignment="Right" TextWrapping="Wrap" MinHeight="16" Text=""/>
+                               Foreground="#3d7a52" FontFamily="Consolas" FontSize="11"
+                               TextAlignment="Right" TextWrapping="Wrap" MinHeight="14" Text=""/>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
                         <Border x:Name="ShiftBadge" Background="#3d2200" CornerRadius="3" Padding="4,1" Margin="2,0" Visibility="Collapsed">
                             <TextBlock Text="SHIFT" Foreground="#fbbf24" FontSize="9" FontFamily="Consolas" FontWeight="Bold"/>
@@ -121,12 +119,13 @@
                         </Border>
                     </StackPanel>
                 </Grid>
-                <TextBlock x:Name="DisplayBlock"
-                           Foreground="#00e676" FontFamily="Consolas" FontSize="30"
-                           TextAlignment="Right" TextWrapping="Wrap" MinHeight="42" Text="0"/>
+                <ScrollViewer x:Name="DisplayScroller" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                              Background="Transparent" BorderThickness="0" MinHeight="60" MaxHeight="100">
+                    <local:MathDisplay x:Name="MathRenderer" />
+                </ScrollViewer>
                 <TextBlock x:Name="StatusBlock"
                            Foreground="#4b5563" FontFamily="Consolas" FontSize="10"
-                           TextAlignment="Right" Text=""/>
+                           TextAlignment="Right" Text="" Margin="0,2,0,0"/>
             </StackPanel>
         </Border>
 
@@ -147,11 +146,19 @@
         </UniformGrid>
 
         <UniformGrid Grid.Row="3" Columns="5" Margin="0,0,0,2">
-            <Button x:Name="LogBtn" Content="log" Style="{StaticResource BtnFn}" Click="BtnLog_Click"/>
+            <Button x:Name="LogBtn" Style="{StaticResource BtnFn}" Click="BtnLog_Click">
+                <local:InlineLogSymbol/>
+            </Button>
             <Button x:Name="LnBtn" Content="ln" Style="{StaticResource BtnFn}" Click="BtnLn_Click"/>
-            <Button x:Name="NthRootBtn" Content="&#x207F;&#x221A;x" Style="{StaticResource BtnFn}" Click="BtnNthRoot_Click"/>
-            <Button x:Name="PowBtn" Content="x&#x02B8;" Style="{StaticResource BtnFn}" Click="BtnPow_Click"/>
-            <Button x:Name="SqBtn" Content="x&#xB2;" Style="{StaticResource BtnFn}" Click="BtnSq_Click"/>
+            <Button x:Name="NthRootBtn" Style="{StaticResource BtnFn}" Click="BtnNthRoot_Click">
+                <local:InlineRootSymbol/>
+            </Button>
+            <Button x:Name="PowBtn" Style="{StaticResource BtnFn}" Click="BtnPow_Click">
+                <local:InlinePowSymbol/>
+            </Button>
+            <Button x:Name="SqBtn" Style="{StaticResource BtnFn}" Click="BtnSq_Click">
+                <local:InlineSqSymbol/>
+            </Button>
         </UniformGrid>
 
         <UniformGrid Grid.Row="4" Columns="5" Margin="0,0,0,2">
