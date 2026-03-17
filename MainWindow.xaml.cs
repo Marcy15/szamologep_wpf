@@ -24,8 +24,8 @@ namespace Szamologep
         private string _baseFrom = "";
         private string _baseToInput = "";
 
-        private static readonly SolidColorBrush ShiftActiveColor = new SolidColorBrush(Color.FromRgb(0xf5, 0x9e, 0x0b));
-        private static readonly SolidColorBrush ShiftInactiveColor = new SolidColorBrush(Color.FromRgb(0x3d, 0x22, 0x00));
+        private static readonly SolidColorBrush ShiftOnBrush = new SolidColorBrush(Color.FromRgb(0xf5, 0x9e, 0x0b));
+        private static readonly SolidColorBrush ShiftOffBrush = new SolidColorBrush(Color.FromRgb(0x3d, 0x22, 0x00));
 
         public MainWindow()
         {
@@ -34,20 +34,20 @@ namespace Szamologep
 
         private void RefreshUI()
         {
-            tbAngle.Text = _isRadians ? "RAD" : "DEG";
-            borderShift.Visibility = _shiftActive ? Visibility.Visible : Visibility.Collapsed;
-            borderMem.Visibility = _memory != 0 ? Visibility.Visible : Visibility.Collapsed;
-            btnShift.Background = _shiftActive ? ShiftActiveColor : ShiftInactiveColor;
+            AngleLabel.Text = _isRadians ? "RAD" : "DEG";
+            ShiftBadge.Visibility = _shiftActive ? Visibility.Visible : Visibility.Collapsed;
+            MemBadge.Visibility = _memory != 0 ? Visibility.Visible : Visibility.Collapsed;
+            ShiftBtn.Background = _shiftActive ? ShiftOnBrush : ShiftOffBrush;
 
             if (_baseState == BaseInputState.WaitingForFromBase)
-                tbStatus.Text = $"Szám: [{_baseNumber}]  →  Add meg az eredeti alapot, majd BASE";
+                StatusBlock.Text = $"Sz\u00e1m: [{_baseNumber}]  \u2192  Add meg az eredeti alapot, majd BASE";
             else if (_baseState == BaseInputState.WaitingForToBase)
-                tbStatus.Text = $"Szám: [{_baseNumber}]  Alap: {_baseFrom}  →  Add meg a célrendszert, majd BASE";
+                StatusBlock.Text = $"Sz\u00e1m: [{_baseNumber}]  Alap: {_baseFrom}  \u2192  C\u00e9lrendszer, majd BASE";
             else
-                tbStatus.Text = "";
+                StatusBlock.Text = "";
         }
 
-        private void PutToDisplay(string val) => tbDisplay.Text = val;
+        private void SetDisplay(string val) => DisplayBlock.Text = val;
 
         private void Append(string s)
         {
@@ -59,7 +59,7 @@ namespace Szamologep
                 _sdMode = false;
             }
             _expression += s;
-            PutToDisplay(_expression);
+            SetDisplay(_expression);
             RefreshUI();
         }
 
@@ -70,16 +70,16 @@ namespace Szamologep
             if (_baseState == BaseInputState.WaitingForFromBase)
             {
                 _baseFrom += d;
-                PutToDisplay(_baseFrom);
-                tbExpression.Text = $"{_baseNumber} [z alap: {_baseFrom}]";
+                SetDisplay(_baseFrom);
+                ExpressionBlock.Text = $"{_baseNumber} [alap: {_baseFrom}]";
                 RefreshUI();
                 return;
             }
             if (_baseState == BaseInputState.WaitingForToBase)
             {
                 _baseToInput += d;
-                PutToDisplay(_baseToInput);
-                tbExpression.Text = $"{_baseNumber} [{_baseFrom}→{_baseToInput}]";
+                SetDisplay(_baseToInput);
+                ExpressionBlock.Text = $"{_baseNumber} [{_baseFrom}\u2192{_baseToInput}]";
                 RefreshUI();
                 return;
             }
@@ -106,9 +106,7 @@ namespace Szamologep
         }
 
         private void BtnParen_Click(object sender, RoutedEventArgs e)
-        {
-            Append(((Button)sender).Tag.ToString()!);
-        }
+            => Append(((Button)sender).Tag.ToString()!);
 
         private void BtnAC_Click(object sender, RoutedEventArgs e)
         {
@@ -118,8 +116,8 @@ namespace Szamologep
             _shiftActive = false;
             _justCalculated = false;
             _sdMode = false;
-            PutToDisplay("0");
-            tbExpression.Text = "";
+            SetDisplay("0");
+            ExpressionBlock.Text = "";
             SyncShiftButtons();
             RefreshUI();
         }
@@ -131,8 +129,8 @@ namespace Szamologep
             if (_expression.Length > 0)
             {
                 _expression = _expression[..^1];
-                PutToDisplay(_expression.Length > 0 ? _expression : "0");
-                tbExpression.Text = _expression;
+                SetDisplay(_expression.Length > 0 ? _expression : "0");
+                ExpressionBlock.Text = _expression;
                 RefreshUI();
             }
         }
@@ -146,14 +144,14 @@ namespace Szamologep
 
         private void SyncShiftButtons()
         {
-            btnSin.Content = _shiftActive ? "sin⁻¹" : "sin";
-            btnCos.Content = _shiftActive ? "cos⁻¹" : "cos";
-            btnTan.Content = _shiftActive ? "tan⁻¹" : "tan";
-            btnLog.Content = _shiftActive ? "10ˣ" : "log";
-            btnLn.Content = _shiftActive ? "eˣ" : "ln";
-            btnNthRoot.Content = _shiftActive ? "x²" : "ⁿ√x";
-            btnPow.Content = _shiftActive ? "x³" : "xʸ";
-            btnSq.Content = _shiftActive ? "1/x" : "x²";
+            SinBtn.Content = _shiftActive ? "sin\u207b\u00b9" : "sin";
+            CosBtn.Content = _shiftActive ? "cos\u207b\u00b9" : "cos";
+            TanBtn.Content = _shiftActive ? "tan\u207b\u00b9" : "tan";
+            LogBtn.Content = _shiftActive ? "10\u02e3" : "log";
+            LnBtn.Content = _shiftActive ? "e\u02e3" : "ln";
+            NthRootBtn.Content = _shiftActive ? "x\u00b2" : "\u207f\u221ax";
+            PowBtn.Content = _shiftActive ? "x\u00b3" : "x\u02b8";
+            SqBtn.Content = _shiftActive ? "1/x" : "x\u00b2";
         }
 
         private void DeactivateShift()
@@ -180,7 +178,7 @@ namespace Szamologep
             Append(fn + "(");
         }
 
-        private void BtnPi_Click(object sender, RoutedEventArgs e) => Append("π");
+        private void BtnPi_Click(object sender, RoutedEventArgs e) => Append("\u03c0");
         private void BtnEuler_Click(object sender, RoutedEventArgs e) => Append("e");
 
         private void BtnLog_Click(object sender, RoutedEventArgs e)
@@ -197,15 +195,8 @@ namespace Szamologep
 
         private void BtnNthRoot_Click(object sender, RoutedEventArgs e)
         {
-            if (_shiftActive)
-            {
-                Append("^2");
-                DeactivateShift();
-            }
-            else
-            {
-                Append("nroot(");
-            }
+            if (_shiftActive) { Append("^2"); DeactivateShift(); }
+            else Append("nroot(");
         }
 
         private void BtnPow_Click(object sender, RoutedEventArgs e)
@@ -251,7 +242,7 @@ namespace Szamologep
 
         private double TryParseDisplay()
         {
-            if (double.TryParse(tbDisplay.Text,
+            if (double.TryParse(DisplayBlock.Text,
                 System.Globalization.NumberStyles.Any,
                 System.Globalization.CultureInfo.InvariantCulture, out double v))
                 return v;
@@ -269,8 +260,8 @@ namespace Szamologep
                 _baseToInput = "";
                 _expression = "";
                 _baseState = BaseInputState.WaitingForFromBase;
-                PutToDisplay("");
-                tbExpression.Text = $"Szám: [{_baseNumber}]";
+                SetDisplay("");
+                ExpressionBlock.Text = $"Sz\u00e1m: [{_baseNumber}]";
                 RefreshUI();
             }
             else if (_baseState == BaseInputState.WaitingForFromBase)
@@ -279,8 +270,8 @@ namespace Szamologep
                 _baseToInput = "";
                 _expression = "";
                 _baseState = BaseInputState.WaitingForToBase;
-                PutToDisplay("");
-                tbExpression.Text = $"{_baseNumber} [{_baseFrom}→?]";
+                SetDisplay("");
+                ExpressionBlock.Text = $"{_baseNumber} [{_baseFrom}\u2192?]";
                 RefreshUI();
             }
             else if (_baseState == BaseInputState.WaitingForToBase)
@@ -292,7 +283,7 @@ namespace Szamologep
                     int fromB = int.Parse(_baseFrom);
                     int toB = int.Parse(toStr);
                     if (fromB < 2 || fromB > 36 || toB < 2 || toB > 36)
-                        throw new Exception("Alap 2 és 36 közé kell essen");
+                        throw new Exception("Alap 2 \u00e9s 36 k\u00f6z\u00e9 kell essen");
                     bool negative = _baseNumber.StartsWith("-");
                     string numStr = negative ? _baseNumber[1..] : _baseNumber;
                     long number = Convert.ToInt64(numStr, fromB);
@@ -300,16 +291,16 @@ namespace Szamologep
                     string result = negative
                         ? "-" + Convert.ToString(Math.Abs(number), toB).ToUpper()
                         : Convert.ToString(number, toB).ToUpper();
-                    tbExpression.Text = $"{_baseNumber}({_baseFrom})→({toB})";
-                    PutToDisplay(result);
+                    ExpressionBlock.Text = $"{_baseNumber}({_baseFrom})\u2192({toB})";
+                    SetDisplay(result);
                     _expression = result;
                     _lastResult = number;
                     _justCalculated = true;
                 }
                 catch (Exception ex)
                 {
-                    PutToDisplay("Hiba");
-                    tbExpression.Text = ex.Message;
+                    SetDisplay("Hiba");
+                    ExpressionBlock.Text = ex.Message;
                 }
                 _baseState = BaseInputState.Idle;
                 _baseNumber = _baseFrom = _baseToInput = "";
@@ -321,7 +312,7 @@ namespace Szamologep
         {
             if (!_justCalculated) return;
             _sdMode = !_sdMode;
-            PutToDisplay(_sdMode ? ToFraction(_lastResult) : FormatResult(_lastResult));
+            SetDisplay(_sdMode ? ToFraction(_lastResult) : FormatResult(_lastResult));
         }
 
         private string ToFraction(double value)
@@ -332,11 +323,11 @@ namespace Szamologep
             long bestNum = (long)Math.Round(absVal);
             long bestDen = 1;
             double bestErr = Math.Abs(absVal - bestNum);
-            for (long d = 2; d <= 100000; d++)
+            for (long den = 2; den <= 100000; den++)
             {
-                long n = (long)Math.Round(absVal * d);
-                double err = Math.Abs(absVal - (double)n / d);
-                if (err < bestErr) { bestErr = err; bestNum = n; bestDen = d; }
+                long num = (long)Math.Round(absVal * den);
+                double err = Math.Abs(absVal - (double)num / den);
+                if (err < bestErr) { bestErr = err; bestNum = num; bestDen = den; }
                 if (bestErr < 1e-12) break;
             }
             long g = GCD(Math.Abs(bestNum), bestDen);
@@ -357,25 +348,24 @@ namespace Szamologep
                 double result = Evaluate(_expression);
                 _lastResult = result;
                 _sdMode = false;
-                tbExpression.Text = _expression + " =";
-                PutToDisplay(FormatResult(result));
+                ExpressionBlock.Text = _expression + " =";
+                SetDisplay(FormatResult(result));
                 _justCalculated = true;
                 RefreshUI();
             }
             catch (Exception ex)
             {
-                PutToDisplay("Hiba");
-                tbExpression.Text = ex.Message;
+                SetDisplay("Hiba");
+                ExpressionBlock.Text = ex.Message;
             }
         }
 
         private static string FormatResult(double r)
         {
             if (double.IsNaN(r)) return "Hiba";
-            if (double.IsPositiveInfinity(r)) return "+∞";
-            if (double.IsNegativeInfinity(r)) return "-∞";
-            string s = r.ToString("G15");
-            return s;
+            if (double.IsPositiveInfinity(r)) return "+\u221e";
+            if (double.IsNegativeInfinity(r)) return "-\u221e";
+            return r.ToString("G15");
         }
 
         private double Evaluate(string expr)
@@ -383,7 +373,7 @@ namespace Szamologep
             var tokens = Tokenize(expr);
             int pos = 0;
             double val = ParseAddSub(tokens, ref pos);
-            if (pos < tokens.Count) throw new Exception("Váratlan szimbólum: " + tokens[pos]);
+            if (pos < tokens.Count) throw new Exception("V\u00e1ratlan szimb\u00f3lum: " + tokens[pos]);
             return val;
         }
 
@@ -396,7 +386,7 @@ namespace Szamologep
             {
                 char c = expr[i];
                 if (c == ' ') { i++; continue; }
-                if (c == 'π') { list.Add("π"); i++; continue; }
+                if (c == '\u03c0') { list.Add("\u03c0"); i++; continue; }
                 if (c == 'e' && (i + 1 >= expr.Length || !char.IsLetterOrDigit(expr[i + 1])))
                 {
                     list.Add("e"); i++; continue;
@@ -415,8 +405,8 @@ namespace Szamologep
                     list.Add(sb.ToString());
                     continue;
                 }
-                if (c == '-' && i + 1 < expr.Length && char.IsDigit(expr[i + 1])
-                    && (list.Count == 0 || list[^1] is "+" or "-" or "*" or "/" or "^" or "(" or ","))
+                if (c == '-' && (list.Count == 0 || list[^1] is "+" or "-" or "*" or "/" or "^" or "(" or ",")
+                    && i + 1 < expr.Length && (char.IsDigit(expr[i + 1]) || expr[i + 1] == '.'))
                 {
                     var sb = new StringBuilder("-");
                     i++;
@@ -433,7 +423,7 @@ namespace Szamologep
         private double ParseAddSub(List<string> t, ref int p)
         {
             double left = ParseMulDiv(t, ref p);
-            while (p < t.Count && t[p] is "+" or "-")
+            while (p < t.Count && (t[p] == "+" || t[p] == "-"))
             {
                 bool add = t[p++] == "+";
                 double right = ParseMulDiv(t, ref p);
@@ -445,11 +435,11 @@ namespace Szamologep
         private double ParseMulDiv(List<string> t, ref int p)
         {
             double left = ParsePow(t, ref p);
-            while (p < t.Count && t[p] is "*" or "/")
+            while (p < t.Count && (t[p] == "*" || t[p] == "/"))
             {
                 bool mul = t[p++] == "*";
                 double right = ParsePow(t, ref p);
-                if (!mul && right == 0) throw new DivideByZeroException("Nullával való osztás");
+                if (!mul && right == 0) throw new DivideByZeroException("Null\u00e1val val\u00f3 oszt\u00e1s");
                 left = mul ? left * right : left / right;
             }
             return left;
@@ -476,10 +466,10 @@ namespace Szamologep
 
         private double ParsePrimary(List<string> t, ref int p)
         {
-            if (p >= t.Count) throw new Exception("Váratlan vég");
+            if (p >= t.Count) throw new Exception("V\u00e1ratlan v\u00e9g");
             string tok = t[p];
 
-            if (tok == "π") { p++; return Math.PI; }
+            if (tok == "\u03c0") { p++; return Math.PI; }
             if (tok == "e") { p++; return Math.E; }
 
             if (double.TryParse(tok,
@@ -563,35 +553,34 @@ namespace Szamologep
             bool shift = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
 
             if (e.Key >= Key.D0 && e.Key <= Key.D9 && !shift)
-            { Append(((int)(e.Key - Key.D0)).ToString()); e.Handled = true; return; }
-            if (e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9)
-            { Append(((int)(e.Key - Key.NumPad0)).ToString()); e.Handled = true; return; }
-
-            switch (e.Key)
             {
-                case Key.Add: Append("+"); break;
-                case Key.Subtract: Append("-"); break;
-                case Key.Multiply: Append("*"); break;
-                case Key.Divide: Append("/"); break;
-                case Key.Decimal: BtnDot_Click(sender, e); break;
-                case Key.OemPeriod: BtnDot_Click(sender, e); break;
-                case Key.OemComma: BtnDot_Click(sender, e); break;
-                case Key.Enter: Calculate(); break;
-                case Key.Return: Calculate(); break;
-                case Key.Back: BtnDel_Click(sender, e); break;
-                case Key.Escape: BtnAC_Click(sender, e); break;
-                case Key.Delete: BtnAC_Click(sender, e); break;
-                case Key.OemOpenBrackets: Append("("); break;
-                case Key.OemCloseBrackets: Append(")"); break;
-                case Key.D9 when shift: Append("("); break;
-                case Key.D0 when shift: Append(")"); break;
-                case Key.OemPlus when !shift: Append("="); Calculate(); break;
-                case Key.OemMinus: Append("-"); break;
-                case Key.P when shift: Append("π"); break;
-                case Key.E when !shift: Append("e"); break;
-                case Key.S when shift: _shiftActive = !_shiftActive; SyncShiftButtons(); RefreshUI(); break;
+                Append(((int)(e.Key - Key.D0)).ToString());
+                e.Handled = true;
+                return;
             }
-            e.Handled = true;
+            if (e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9)
+            {
+                Append(((int)(e.Key - Key.NumPad0)).ToString());
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == Key.Add) { Append("+"); e.Handled = true; return; }
+            if (e.Key == Key.Subtract || e.Key == Key.OemMinus) { Append("-"); e.Handled = true; return; }
+            if (e.Key == Key.Multiply) { Append("*"); e.Handled = true; return; }
+            if (e.Key == Key.Divide) { Append("/"); e.Handled = true; return; }
+            if (e.Key == Key.Decimal || e.Key == Key.OemPeriod || e.Key == Key.OemComma)
+            { BtnDot_Click(sender, e); e.Handled = true; return; }
+            if (e.Key == Key.Enter || e.Key == Key.Return) { Calculate(); e.Handled = true; return; }
+            if (e.Key == Key.Back) { BtnDel_Click(sender, e); e.Handled = true; return; }
+            if (e.Key == Key.Escape || e.Key == Key.Delete) { BtnAC_Click(sender, e); e.Handled = true; return; }
+            if (e.Key == Key.OemOpenBrackets) { Append("("); e.Handled = true; return; }
+            if (e.Key == Key.OemCloseBrackets) { Append(")"); e.Handled = true; return; }
+            if (shift && e.Key == Key.D9) { Append("("); e.Handled = true; return; }
+            if (shift && e.Key == Key.D0) { Append(")"); e.Handled = true; return; }
+            if (shift && e.Key == Key.P) { Append("\u03c0"); e.Handled = true; return; }
+            if (shift && e.Key == Key.S) { BtnShift_Click(sender, e); e.Handled = true; return; }
+            if (!shift && e.Key == Key.E) { Append("e"); e.Handled = true; return; }
         }
     }
 }
